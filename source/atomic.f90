@@ -169,7 +169,7 @@ contains
 		allocate(fv(n))
 		
 		allocate(delta(n))
-		allocate(stokes(4,n))				
+		allocate(stokes(4,n))
 
 		do k = 1, n
 			Stokes_Syn%lambda(k) = lmin + lstep * (k-1)			

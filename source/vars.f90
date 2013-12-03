@@ -17,8 +17,6 @@ implicit none
 	real(kind=8), allocatable :: zeeman_voigt(:,:), zeeman_faraday(:,:)
 	
 	integer :: n_lineas
-	character(len=80) :: fich_malla, fich_lineas, file_output_profile, file_output_model
-	character(len=80) :: file_stray_light
 	
 	type stokes_type
 		integer :: nlambda
@@ -26,44 +24,22 @@ implicit none
 	end type stokes_type
 	
 	type modelo_type
-		logical :: stray_light_component
-		integer :: stray_light_nlambda
 		real(kind=8) :: Bfield, theta, chi, ff, vmac, damping, beta, macrot, mu
-		real(kind=8) :: doppler, filling_factor
-		real(kind=8), dimension(2) :: Bfield_range, theta_range, chi_range, ff_range
-		real(kind=8), dimension(2) :: vmac_range, damping_range, beta_range, macrot_range
-		real(kind=8), dimension(2) :: doppler_range, filling_factor_range
-		real(kind=8), pointer :: isotopic_abun(:), kl_range(:,:)
-		real(kind=8), pointer :: straylight(:,:)
+		real(kind=8) :: doppler
 		real(kind=8) :: kl(10)
 	end type modelo_type
-	
-	type inversion_type
-		integer :: n_cycles, n_params, nparams_invert
-		integer, pointer, dimension(:) :: which_to_invert, filling_factor_position
-		real(kind=8), pointer, dimension(:,:) :: range
-		real(kind=8), pointer, dimension(:,:,:) :: dydx
-		real(kind=8) :: lambda, chisq
-		real(kind=8) :: stokes_weights(4)
-	end type inversion_type
-	
+		
 	type line_type
 		character(len=2) :: theory
-		real(kind=8) :: lambda_init, lambda_end, lambda_step, lambda
-		real(kind=8) :: wave0, Jup, Jlow, gup, glow
-		real(kind=8) :: Lu, Su, Au, Bu, Ll, Sl, Al, Bl, I
+		integer :: nLambda
+		real(kind=8) :: lambdaInit, lambdaStep, lambda
+		real(kind=8) :: wave0, Jup, Jlow, gup, glow		
 	end type line_type
 	
 	type(stokes_type) :: Observation, Emergent, Stokes_unperturbed, Stokes_perturbed
 	type(stokes_type), pointer :: Stokes_Syn(:)
 	
-	type(modelo_type), pointer :: model(:)
-	
-	type(inversion_type) :: inversion
-	
-	type(line_type), pointer :: linea(:)
-	
-	integer :: what_to_do, number_of_components, verbose
-	
-	character(len=10), allocatable :: parameters_name(:)
+	type(modelo_type), pointer :: model(:)		
+	type(line_type), pointer :: lines(:)
+				
 end module vars

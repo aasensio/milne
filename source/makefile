@@ -24,7 +24,7 @@ LIBS = -lifcore -lsvml
 OPTIONS = -c -fPIC -O3
  
 FINAL_EXECUTABLE = milne
-F2PY = f2py
+F2PY = /usr/pkg/python/Python-2.7.4/bin/f2py
 
 # 
 
