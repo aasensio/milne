@@ -39,7 +39,7 @@ implicit none
 	type(stokes_type) :: Observation, Emergent, Stokes_unperturbed, Stokes_perturbed
 	type(stokes_type), pointer :: Stokes_Syn(:)
 	
-	type(modelo_type), pointer :: model(:)		
-	type(line_type), pointer :: lines(:)
+	type(modelo_type) :: model
+	type(line_type) :: line
 				
 end module vars

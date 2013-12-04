@@ -80,7 +80,7 @@ contains
 !  q=2  Mlow=Mup    (sigma pi)
 !  q=3  Mlow=Mup+1  (sigma red)
 !-----------------------------------------------------------------	
-	subroutine zeeman_opacity(model,line,zeeman_voigt,zeeman_faraday,ki,kq,ku,kv,fq,fu,fv)
+	subroutine zeeman_opacity(model,zeeman_voigt,zeeman_faraday,ki,kq,ku,kv,fq,fu,fv)
 	type(modelo_type) :: model
 	integer :: line
 	real(kind=8) :: zeeman_voigt(:,:), zeeman_faraday(:,:)
@@ -104,13 +104,13 @@ contains
 		fu = 0.5d0 * (zeeman_faraday(2,:) - 0.5d0*(zeeman_faraday(1,:)+zeeman_faraday(3,:))) * sin_theta**2*sin_2chi  ! rho_U
 		fv = 0.5d0 * (zeeman_faraday(3,:)-zeeman_faraday(1,:)) * cos_theta  ! rho_V
 		
-		ki = model%kl(line) * ki
-		kq = model%kl(line) * kq
-		ku = model%kl(line) * ku
-		kv = model%kl(line) * kv
-		fq = model%kl(line) * fq
-		fu = model%kl(line) * fu
-		fv = model%kl(line) * fv
+		ki = model%kl * ki
+		kq = model%kl * kq
+		ku = model%kl * ku
+		kv = model%kl * kv
+		fq = model%kl * fq
+		fu = model%kl * fu
+		fv = model%kl * fv
 				
 	end subroutine zeeman_opacity	
 	
@@ -119,9 +119,9 @@ contains
 ! Add the atomic opacity to the opacity including the effect of a magnetic field
 !-----------------------------------------------------------------	
 	subroutine synthesize(model,linea,Stokes_Syn)
-	type(modelo_type) :: model(:)
+	type(modelo_type) :: model
 	type(stokes_type) :: Stokes_Syn
-	type(line_type) :: linea(:)
+	type(line_type) :: linea
 	integer :: i, j, k, n, n_lineas
 	real(kind=8), allocatable :: ki(:), kq(:), ku(:), kv(:), fq(:), fu(:), fv(:), stokes(:,:), delta(:)
 	real(kind=8), allocatable :: ki_partial(:), kq_partial(:), ku_partial(:), kv_partial(:)
@@ -129,108 +129,59 @@ contains
 	real(kind=8) :: factor1 ,factor2, lmax, lmin, lstep
 	character(len=1) :: str
 		
-		n_lineas = size(linea)
-							
-! Calculate wavelength axis. Unique for all the lines		
-		lmax = 0
-		lmin = 1.d20
-		lstep = 1.d20
-		do i = 1, n_lineas
-			lmax = max(lmax,linea(i)%lambda_end)
-			lmin = min(lmin,linea(i)%lambda_init)
-			lstep = min(lstep,linea(i)%lambda_step)
-		enddo
-				
-		n = (lmax-lmin) / lstep		
-		Stokes_Syn%nlambda = n
-						
-		if (.not.associated(Stokes_Syn%lambda)) allocate(Stokes_Syn%lambda(n))
-		if (.not.associated(Stokes_Syn%stokes)) allocate(Stokes_Syn%stokes(4,n))
-		
-		Stokes_Syn%stokes = 0.d0
-		
-		allocate(zeeman_voigt(3,n))
-		allocate(zeeman_faraday(3,n))
+		allocate(zeeman_voigt(3,line%nLambda))
+		allocate(zeeman_faraday(3,line%nLambda))
 
-		allocate(ki_partial(n))
-		allocate(kq_partial(n))
-		allocate(ku_partial(n))
-		allocate(kv_partial(n))
-		allocate(fq_partial(n))
-		allocate(fu_partial(n))
-		allocate(fv_partial(n))
+		allocate(ki_partial(line%nLambda))
+		allocate(kq_partial(line%nLambda))
+		allocate(ku_partial(line%nLambda))
+		allocate(kv_partial(line%nLambda))
+		allocate(fq_partial(line%nLambda))
+		allocate(fu_partial(line%nLambda))
+		allocate(fv_partial(line%nLambda))
 		
-		allocate(ki(n))
-		allocate(kq(n))
-		allocate(ku(n))
-		allocate(kv(n))
-		allocate(fq(n))
-		allocate(fu(n))
-		allocate(fv(n))
+		allocate(ki(line%nLambda))
+		allocate(kq(line%nLambda))
+		allocate(ku(line%nLambda))
+		allocate(kv(line%nLambda))
+		allocate(fq(line%nLambda))
+		allocate(fu(line%nLambda))
+		allocate(fv(line%nLambda))
 		
-		allocate(delta(n))
-		allocate(stokes(4,n))
+		allocate(delta(line%nLambda))
+		allocate(stokes(4,line%nLambda))
 
-		do k = 1, n
-			Stokes_Syn%lambda(k) = lmin + lstep * (k-1)			
-		enddo
-						
-		do j = 1, number_of_components
 			
-! If it is a stray-light contamination
-			if (model(j)%stray_light_component) then				
-				if (model(j)%stray_light_nlambda /= Stokes_Syn%nlambda) then
-					print *, 'Not consistent number of wavelengths in stray light profile...'
-					stop
-				endif
-				Stokes_Syn%stokes = Stokes_Syn%stokes + &
-					model(j)%filling_factor * model(j)%straylight
+		factor1 = 1.d0 / (1.d0 + model%beta*model%mu)
+		factor2 = -model%beta*model%mu * factor1
 				
-			else
-! Or a standard model
-				factor1 = 1.d0 / (1.d0 + model(j)%beta*model(j)%mu)
-				factor2 = -model(j)%beta*model(j)%mu * factor1
-				
-				ki = 0.d0
-				kq = 0.d0
-				ku = 0.d0
-				kv = 0.d0
-				fq = 0.d0
-				fu = 0.d0
-				fv = 0.d0
+		ki = 0.d0
+		kq = 0.d0
+		ku = 0.d0
+		kv = 0.d0
+		fq = 0.d0
+		fu = 0.d0
+		fv = 0.d0
 			
-				do i = 1, n_lineas				
-					call zeeman_profile(Stokes_Syn,model(j),linea(i),zeeman_voigt,zeeman_faraday)
+		call zeeman_profile(Stokes_Syn,model,linea,zeeman_voigt,zeeman_faraday)
 					
-					call zeeman_opacity(model(j),i,zeeman_voigt,zeeman_faraday,ki_partial,kq_partial,&
-						ku_partial,kv_partial,fq_partial,fu_partial,fv_partial)
-									
-					ki = ki + ki_partial
-					kq = kq + kq_partial
-					ku = ku + ku_partial
-					kv = kv + kv_partial
-					fq = fq + fq_partial
-					fu = fu + fu_partial
-					fv = fv + fv_partial
-				enddo
-					
-				delta = (1.d0+ki)**4 + (1.d0+ki)**2 * (fq**2+fu**2+fv**2-kq**2-ku**2-kv**2) - &
-					(kq*fq+ku*fu+kv*fv)**2
+		call zeeman_opacity(model,zeeman_voigt,zeeman_faraday,ki,kq,&
+						ku,kv,fq,fu,fv)
+														
+		delta = (1.d0+ki)**4 + (1.d0+ki)**2 * (fq**2+fu**2+fv**2-kq**2-ku**2-kv**2) - &
+			(kq*fq+ku*fu+kv*fv)**2
 		
-				stokes(1,:) = factor1 * (1.d0+model(j)%beta*model(j)%mu*(1.d0+ki) / delta * &
-					((1.d0+ki)**2 + fq**2 + fu**2 + fv**2))
-				stokes(2,:) = factor2 / delta * ((1.d0+ki)**2*kq - (1.d0+ki)*(ku*fv-kv*fu) + &
-					fq*(kq*fq+ku*fu+kv*fv))
-				stokes(3,:) = factor2 / delta * ((1.d0+ki)**2*ku - (1.d0+ki)*(kv*fq-kq*fv) + &
-					fu*(kq*fq+ku*fu+kv*fv))
-				stokes(4,:) = factor2 / delta * ((1.d0+ki)**2*kv - (1.d0+ki)*(kq*fu-ku*fq) + &
-					fv*(kq*fq+ku*fu+kv*fv))
+		stokes(1,:) = factor1 * (1.d0+model%beta*model%mu*(1.d0+ki) / delta * &
+			((1.d0+ki)**2 + fq**2 + fu**2 + fv**2))
+		stokes(2,:) = factor2 / delta * ((1.d0+ki)**2*kq - (1.d0+ki)*(ku*fv-kv*fu) + &
+			fq*(kq*fq+ku*fu+kv*fv))
+		stokes(3,:) = factor2 / delta * ((1.d0+ki)**2*ku - (1.d0+ki)*(kv*fq-kq*fv) + &
+			fu*(kq*fq+ku*fu+kv*fv))
+		stokes(4,:) = factor2 / delta * ((1.d0+ki)**2*kv - (1.d0+ki)*(kq*fu-ku*fq) + &
+			fv*(kq*fq+ku*fu+kv*fv))
 			
-				Stokes_Syn%stokes = Stokes_Syn%stokes + model(j)%filling_factor * stokes
-			endif
+		Stokes_Syn%stokes = stokes
 			
-		enddo
-
 		deallocate(zeeman_voigt)
 		deallocate(zeeman_faraday)
 		deallocate(ki)
