@@ -19,12 +19,11 @@
  
 # ifort (comment these lines if you want to use another compiler)
 COMPILER = ifort
-PYCOMPILER = intel
+PYCOMPILER = intelem
 LIBS = -lifcore -lsvml
 OPTIONS = -c -fPIC -O3
  
 FINAL_EXECUTABLE = milne
-F2PY = /usr/pkg/python/Python-2.7.4/bin/f2py
 
 # 
 
@@ -32,7 +31,8 @@ all:
 	make pymilne
 		
 pymilne: vars.o maths.o atomic.o milne.o
-	$(F2PY) $(LIBS) -c milne.pyf vars.o maths.o atomic.o milne.o
+	$(F2PY_EXEC) $(LIBS) --fcompiler=$(PYCOMPILER) -c milne.pyf vars.o maths.o atomic.o milne.o
+	cp milneFast.so ../
 
 clean: 
 	find . -maxdepth 2 -name "*.o" -delete ; find . -maxdepth 1 -name "*.mod" -delete ;
@@ -51,4 +51,4 @@ atomic.o: atomic.f90 maths.o vars.o
 	
 milne.o: milne.f90
 	$(COMPILER) $(OPTIONS)  milne.f90
-	$(F2PY) --overwrite-signature -m milne -h milne.pyf milne.f90
+	$(F2PY_EXEC) --overwrite-signature -m milneFast -h milne.pyf milne.f90

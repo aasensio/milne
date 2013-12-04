@@ -1,22 +1,26 @@
 module milneMod
-implicit none
 use vars
+use atomic_functions
+use math_functions, only : init_maths
+implicit none
+
+contains
 
 	subroutine setLine(lineData)
-	real(kind=8) :: lineData(nLines,8)
+	real(kind=8) :: lineData(8)
 	integer :: k
 	
-	!f2py integer, intent(in) :: nLines
-	!f2py real(8), intent(in), dimension(nLines,8) :: lineData
+!f2py integer, intent(in) :: nLines
+!f2py real(8), intent(in), dimension(nLines,8) :: lineData
 			
-		line%linewave0 = lineData(i,1)
-		line%Jup = lineData(i,2)
-		line%Jlow = lineData(i,3)
-		line%gup = lineData(i,4)
-		line%glow = lineData(i,5)
-		line%lambdaInit = lineData(i,6)
-		line%lambdaStep = lineData(i,7)
-		line%nLambda = lineData(i,8)
+		line%wave0 = lineData(1)
+		line%Jup = lineData(2)
+		line%Jlow = lineData(3)
+		line%gup = lineData(4)
+		line%glow = lineData(5)
+		line%lambdaInit = lineData(6)
+		line%lambdaStep = lineData(7)
+		line%nLambda = lineData(8)
 		
 		Stokes_Syn%nlambda = line%nLambda
 						
@@ -29,12 +33,34 @@ use vars
 			Stokes_Syn%lambda(k) = line%lambdaInit + line%lambdaStep * (k-1)			
 		enddo
 		
-	end subroutine setLine
-
-
-	subroutine milneInit(nLines)
-	!f2py integer, intent(in) :: nLines
+		call init_maths
 		
-	end subroutine milneInit
+	end subroutine setLine
+	
+	subroutine milneSynth(modelIn,waveOut, stokesOut,n)
+	integer :: n
+	real(kind=8) :: modelIn(9), waveOut(n), stokesOut(4,n)
+	
+!f2py integer, optional, intent(in) :: n
+!f2py real(8), intent(in), dimension(9) :: modelIn
+!f2py real(8), intent(out), dimension(4,n) :: stokesOut
+!f2py real(8), intent(out), dimension(n) :: waveOut
+	
+ 		model%Bfield = modelIn(1)
+ 		model%theta = modelIn(2)
+ 		model%chi = modelIn(3)
+ 		model%vmac = modelIn(4)
+ 		model%damping = modelIn(5)
+ 		model%beta = modelIn(6)
+ 		model%mu = modelIn(7)
+ 		model%doppler = modelIn(8)
+ 		model%kl = modelIn(9)
+ 				
+ 		call synthesize(model,line,Stokes_Syn)
+ 		 		
+ 		waveOut = Stokes_Syn%lambda
+ 		StokesOut = Stokes_Syn%stokes
+ 		
+	end subroutine milneSynth
 	
 end module milneMod

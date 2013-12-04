@@ -38,7 +38,7 @@ contains
 		v = (Stokes_Syn%lambda-linea%wave0) / model%doppler
 		va = linea%wave0 * model%vmac / (PC*model%doppler)
 		vb = linea%wave0**2 * model%Bfield * 4.6686d-13 / model%doppler
-				
+						
 		do iup = 1, nup
 			Mup = linea%Jup + 1 - iup  ! Mup=J...-J
 			do ilow = 1, 3
@@ -60,7 +60,7 @@ contains
 					
 					strength = strength_zeeman(linea%Jup,linea%Jlow,Mup,Mlow)
 					splitting = linea%gup*Mup - linea%glow*Mlow
-
+					
 					profile = fvoigt_zeeman(model%damping,v-va+vb*splitting)
 					zeeman_voigt(ilow,:) = zeeman_voigt(ilow,:) + strength * profile(1,:) / sqrt(PI)
 					zeeman_faraday(ilow,:) = zeeman_faraday(ilow,:) + strength * profile(2,:) / sqrt(PI)		
@@ -150,11 +150,10 @@ contains
 		
 		allocate(delta(line%nLambda))
 		allocate(stokes(4,line%nLambda))
-
 			
 		factor1 = 1.d0 / (1.d0 + model%beta*model%mu)
 		factor2 = -model%beta*model%mu * factor1
-				
+					
 		ki = 0.d0
 		kq = 0.d0
 		ku = 0.d0
@@ -164,10 +163,10 @@ contains
 		fv = 0.d0
 			
 		call zeeman_profile(Stokes_Syn,model,linea,zeeman_voigt,zeeman_faraday)
-					
+							
 		call zeeman_opacity(model,zeeman_voigt,zeeman_faraday,ki,kq,&
 						ku,kv,fq,fu,fv)
-														
+																				
 		delta = (1.d0+ki)**4 + (1.d0+ki)**2 * (fq**2+fu**2+fv**2-kq**2-ku**2-kv**2) - &
 			(kq*fq+ku*fu+kv*fv)**2
 		
@@ -191,15 +190,7 @@ contains
 		deallocate(fq)
 		deallocate(fu)
 		deallocate(fv)
-		
-		deallocate(ki_partial)
-		deallocate(kq_partial)
-		deallocate(ku_partial)
-		deallocate(kv_partial)
-		deallocate(fq_partial)
-		deallocate(fu_partial)
-		deallocate(fv_partial)
-		
+				
 		deallocate(stokes)
 		deallocate(delta)
 

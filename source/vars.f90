@@ -24,9 +24,7 @@ implicit none
 	end type stokes_type
 	
 	type modelo_type
-		real(kind=8) :: Bfield, theta, chi, ff, vmac, damping, beta, macrot, mu
-		real(kind=8) :: doppler
-		real(kind=8) :: kl(10)
+		real(kind=8) :: Bfield, theta, chi, vmac, damping, beta, mu, doppler, kl
 	end type modelo_type
 		
 	type line_type
@@ -37,7 +35,7 @@ implicit none
 	end type line_type
 	
 	type(stokes_type) :: Observation, Emergent, Stokes_unperturbed, Stokes_perturbed
-	type(stokes_type), pointer :: Stokes_Syn(:)
+	type(stokes_type) :: Stokes_Syn
 	
 	type(modelo_type) :: model
 	type(line_type) :: line
