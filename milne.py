@@ -29,7 +29,7 @@ class milne:
 		
 		newModel = model[:]
 		if (model[index] == 0):
-			change = 1.0e-8			
+			change = 1.0e-3			
 		else:
 			change = model[index] * relativeChange
 		
@@ -52,5 +52,5 @@ class milne:
 		
 			stokesDeriv[:,i,:] = (stokesNew - stokes) / change			
 		
-		return wavelength, stokesDeriv
+		return wavelength, stokes, stokesDeriv
 		

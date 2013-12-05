@@ -36,7 +36,7 @@ contains
 		i_blue = 0
 		
 		v = (Stokes_Syn%lambda-linea%wave0) / model%doppler
-		va = linea%wave0 * model%vmac / (PC*model%doppler)
+		va = 1.d5 * linea%wave0 * model%vmac / (PC*model%doppler)
 		vb = linea%wave0**2 * model%Bfield * 4.6686d-13 / model%doppler
 						
 		do iup = 1, nup
@@ -131,14 +131,6 @@ contains
 		
 		allocate(zeeman_voigt(3,line%nLambda))
 		allocate(zeeman_faraday(3,line%nLambda))
-
-		allocate(ki_partial(line%nLambda))
-		allocate(kq_partial(line%nLambda))
-		allocate(ku_partial(line%nLambda))
-		allocate(kv_partial(line%nLambda))
-		allocate(fq_partial(line%nLambda))
-		allocate(fu_partial(line%nLambda))
-		allocate(fv_partial(line%nLambda))
 		
 		allocate(ki(line%nLambda))
 		allocate(kq(line%nLambda))
