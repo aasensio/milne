@@ -52,5 +52,4 @@ class milne:
 		
 			stokesDeriv[:,i,:] = (stokesNew - stokes) / change			
 		
-		return wavelength, stokes, stokesDeriv
-		
+		return wavelength, stokes, stokesDeriv	

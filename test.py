@@ -1,7 +1,7 @@
 from milne import milne as milne
 import numpy as np
 import matplotlib.pyplot as pl
-import time
+import datetime as dt
 
 lambda0 = 6301.5080
 JUp = 2.0
@@ -29,21 +29,31 @@ VDop = 0.15
 kl = 5.0
 model = [BField, BTheta, BChi, VMac, damping, beta, mu, VDop, kl]
 
-wavelength, stokes, stokesDer = s.synthDerivatives(model)
+start = dt.datetime.now()
+for i in range(1000):
+	wavelength, stokes = s.synth(model)
+end = dt.datetime.now()
+print "Computating 1000 models without derivatives took {0} s".format((end-start).microseconds*1e-6)
 
-fig = pl.figure(num=0)
+start = dt.datetime.now()
+for i in range(1000):
+	wavelength, stokes, stokesDer = s.synthDerivatives(model)
+end = dt.datetime.now()
+print "Computating 1000 models with derivatives took {0} s".format((end-start).microseconds*1e-6)
 
-for i in range(4):
-	ax = fig.add_subplot(2,2,i+1)
-	ax.plot(wavelength, stokes[i,:])
+#fig = pl.figure(num=0)
+
+#for i in range(4):
+	#ax = fig.add_subplot(2,2,i+1)
+	#ax.plot(wavelength, stokes[i,:])
 	
-fig.tight_layout()
+#fig.tight_layout()
 
-fig2 = pl.figure(num=1, figsize=(16,8))
-loop = 1
-for i in range(4):
-	for j in range(9):
-		ax = fig2.add_subplot(4,9,loop)
-		ax.plot(wavelength, stokesDer[i,j,:])
-		loop += 1
-fig2.tight_layout()
+#fig2 = pl.figure(num=1, figsize=(16,8))
+#loop = 1
+#for i in range(4):
+	#for j in range(9):
+		#ax = fig2.add_subplot(4,9,loop)
+		#ax.plot(wavelength, stokesDer[i,j,:])
+		#loop += 1
+#fig2.tight_layout()
