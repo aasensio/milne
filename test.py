@@ -27,17 +27,17 @@ beta = 3.0
 mu = 1.0
 VDop = 0.15
 kl = 5.0
-model = [BField, BTheta, BChi, VMac, damping, beta, mu, VDop, kl]
+model = [BField, BTheta, BChi, VMac, damping, beta, VDop, kl]
 
 start = dt.datetime.now()
 for i in range(1000):
-	wavelength, stokes = s.synth(model)
+	wavelength, stokes = s.synth(model,mu)
 end = dt.datetime.now()
 print "Computating 1000 models without derivatives took {0} s".format((end-start).microseconds*1e-6)
 
 start = dt.datetime.now()
 for i in range(1000):
-	wavelength, stokes, stokesDer = s.synthDerivatives(model)
+	wavelength, stokes, stokesDer = s.synthDerivatives(model,mu)
 end = dt.datetime.now()
 print "Computating 1000 models with derivatives took {0} s".format((end-start).microseconds*1e-6)
 

@@ -37,12 +37,13 @@ contains
 		
 	end subroutine setLine
 	
-	subroutine milneSynth(modelIn,waveOut, stokesOut,n)
+	subroutine milneSynth(modelIn,muIn,waveOut, stokesOut,n)
 	integer :: n
-	real(kind=8) :: modelIn(9), waveOut(n), stokesOut(4,n)
+	real(kind=8) :: modelIn(8), muIn, waveOut(n), stokesOut(4,n)
 	
 !f2py integer, optional, intent(in) :: n
-!f2py real(8), intent(in), dimension(9) :: modelIn
+!f2py real(8), intent(in), dimension(8) :: modelIn
+!f2py real(8), intent(in) :: muIn
 !f2py real(8), intent(out), dimension(4,n) :: stokesOut
 !f2py real(8), intent(out), dimension(n) :: waveOut
 	
@@ -51,10 +52,10 @@ contains
  		model%chi = modelIn(3)
  		model%vmac = modelIn(4)
  		model%damping = modelIn(5)
- 		model%beta = modelIn(6)
- 		model%mu = modelIn(7)
- 		model%doppler = modelIn(8)
- 		model%kl = modelIn(9)
+ 		model%beta = modelIn(6) 		
+ 		model%doppler = modelIn(7)
+ 		model%kl = modelIn(8)
+ 		model%mu = muIn
  				
  		call synthesize(model,line,Stokes_Syn)
  		 		
