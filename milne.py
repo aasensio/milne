@@ -44,12 +44,12 @@ class milne:
 		
 		wavelength, stokes = m.milnemod.milnesynth(model,mu,self.lineInfo[-1])
 		
-		stokesDeriv = np.zeros((4,8,self.lineInfo[-1]))
+		stokesDeriv = np.zeros((8,4,self.lineInfo[-1]))
 		
 		for i in range(8):			
 			newModel, change = self.__perturbParameter(model, i, relativeChange)			
 			wavelength, stokesNew = m.milnemod.milnesynth(newModel,mu,self.lineInfo[-1])
 		
-			stokesDeriv[:,i,:] = (stokesNew - stokes) / change			
+			stokesDeriv[i,:,:] = (stokesNew - stokes) / change			
 		
 		return wavelength, stokes, stokesDeriv	
