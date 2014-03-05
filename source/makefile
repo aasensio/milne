@@ -19,11 +19,12 @@
  
 # ifort (comment these lines if you want to use another compiler)
 COMPILER = ifort
-PYCOMPILER = intelem
+PYCOMPILER = intel
 LIBS = -lifcore -lsvml
 OPTIONS = -c -fPIC -O3
  
 FINAL_EXECUTABLE = milneFast
+F2PY_EXEC = f2py
 
 # 
 
@@ -32,7 +33,7 @@ all:
 		
 pymilne: vars.o maths.o atomic.o milne.o
 	$(F2PY_EXEC) $(LIBS) --fcompiler=$(PYCOMPILER) -c milne.pyf vars.o maths.o atomic.o milne.o
-	cp $(FINAL_EXECUTABLE) ../
+	cp $(FINAL_EXECUTABLE).so ../
 
 clean: 
 	find . -maxdepth 2 -name "*.o" -delete ; find . -maxdepth 1 -name "*.mod" -delete ;
