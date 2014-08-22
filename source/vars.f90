@@ -24,7 +24,7 @@ implicit none
 	end type stokes_type
 	
 	type modelo_type
-		real(kind=8) :: Bfield, theta, chi, vmac, damping, beta, mu, doppler, kl
+		real(kind=8) :: Bfield, theta, chi, vmac, damping, B0, B1, mu, doppler, kl
 	end type modelo_type
 		
 	type line_type
@@ -39,5 +39,11 @@ implicit none
 	
 	type(modelo_type) :: model
 	type(line_type) :: line
+	
+	real(kind=8), allocatable :: ki(:), kq(:), ku(:), kv(:), fq(:), fu(:), fv(:), stokes(:,:), delta(:)
+	real(kind=8), allocatable :: ki_partial(:), kq_partial(:), ku_partial(:), kv_partial(:)
+	real(kind=8), allocatable :: fq_partial(:), fu_partial(:), fv_partial(:)
+	
+	real(kind=8), allocatable :: profile(:,:), v(:)
 				
 end module vars

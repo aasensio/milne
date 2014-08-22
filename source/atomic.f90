@@ -3,7 +3,7 @@ use math_functions
 use vars
 implicit none
 contains
-	
+
 !-----------------------------------------------------------------
 ! Return the profiles weighted by the strength of the components for a given frequency
 ! It returns zeeman_profile(q,n_depths) with
@@ -18,13 +18,7 @@ contains
 	real(kind=8) :: zeeman_voigt(:,:), zeeman_faraday(:,:)
 	integer :: n, nlow, nup, iup, ilow, i_pi, i_blue, i_red, cual
 	real(kind=8) :: Mup, Mlow, strength, va, vb, splitting
-	real(kind=8), allocatable :: profile(:,:), v(:)
 	
-		n = size(zeeman_voigt(1,:))		
-		
-		allocate(profile(2,n))
-		allocate(v(n))
-		
 		nup = 2*linea%Jup+1
 		nlow = 2*linea%Jlow+1
 		
@@ -44,33 +38,18 @@ contains
 			do ilow = 1, 3
 				Mlow = Mup-2+ilow			! Mlow=Mup-1,Mup,Mup+1 (the allowed transitions)
 				if (abs(Mlow) <= linea%Jlow) then
-					
-					if (ilow == 1) then
-						i_blue = i_blue + 1
-						cual = i_blue
-					endif
-					if (ilow == 2) then
-						i_pi = i_pi + 1
-						cual = i_pi
-					endif
-					if (ilow == 3) then
-						i_red = i_red + 1
-						cual = i_red
-					endif
-					
+										
 					strength = strength_zeeman(linea%Jup,linea%Jlow,Mup,Mlow)
 					splitting = linea%gup*Mup - linea%glow*Mlow
 					
 					profile = fvoigt_zeeman(model%damping,v-va+vb*splitting)
 					zeeman_voigt(ilow,:) = zeeman_voigt(ilow,:) + strength * profile(1,:) / sqrt(PI)
 					zeeman_faraday(ilow,:) = zeeman_faraday(ilow,:) + strength * profile(2,:) / sqrt(PI)		
+					
 				endif
 			enddo
 		enddo	
-		
-		deallocate(profile)
-		deallocate(v)
-		
+				
 	end subroutine zeeman_profile
 		
 !-----------------------------------------------------------------
@@ -114,7 +93,6 @@ contains
 				
 	end subroutine zeeman_opacity	
 	
-	
 !-----------------------------------------------------------------
 ! Add the atomic opacity to the opacity including the effect of a magnetic field
 !-----------------------------------------------------------------	
@@ -122,29 +100,9 @@ contains
 	type(modelo_type) :: model
 	type(stokes_type) :: Stokes_Syn
 	type(line_type) :: linea
-	integer :: i, j, k, n, n_lineas
-	real(kind=8), allocatable :: ki(:), kq(:), ku(:), kv(:), fq(:), fu(:), fv(:), stokes(:,:), delta(:)
-	real(kind=8), allocatable :: ki_partial(:), kq_partial(:), ku_partial(:), kv_partial(:)
-	real(kind=8), allocatable :: fq_partial(:), fu_partial(:), fv_partial(:)
+	integer :: i, j, k, n, n_lineas	
 	real(kind=8) :: factor1 ,factor2, lmax, lmin, lstep
-	character(len=1) :: str
-		
-		allocate(zeeman_voigt(3,line%nLambda))
-		allocate(zeeman_faraday(3,line%nLambda))
-		
-		allocate(ki(line%nLambda))
-		allocate(kq(line%nLambda))
-		allocate(ku(line%nLambda))
-		allocate(kv(line%nLambda))
-		allocate(fq(line%nLambda))
-		allocate(fu(line%nLambda))
-		allocate(fv(line%nLambda))
-		
-		allocate(delta(line%nLambda))
-		allocate(stokes(4,line%nLambda))
-			
-		factor1 = 1.d0 / (1.d0 + model%beta*model%mu)
-		factor2 = -model%beta*model%mu * factor1
+	character(len=1) :: str					
 					
 		ki = 0.d0
 		kq = 0.d0
@@ -156,36 +114,22 @@ contains
 			
 		call zeeman_profile(Stokes_Syn,model,linea,zeeman_voigt,zeeman_faraday)
 							
-		call zeeman_opacity(model,zeeman_voigt,zeeman_faraday,ki,kq,&
-						ku,kv,fq,fu,fv)
+		call zeeman_opacity(model,zeeman_voigt,zeeman_faraday,ki,kq,ku,kv,fq,fu,fv)
 																				
 		delta = (1.d0+ki)**4 + (1.d0+ki)**2 * (fq**2+fu**2+fv**2-kq**2-ku**2-kv**2) - &
 			(kq*fq+ku*fu+kv*fv)**2
 		
-		stokes(1,:) = factor1 * (1.d0+model%beta*model%mu*(1.d0+ki) / delta * &
+		stokes(1,:) = model%B0 * (1.d0+model%B1/model%B0*model%mu*(1.d0+ki) / delta * &
 			((1.d0+ki)**2 + fq**2 + fu**2 + fv**2))
-		stokes(2,:) = factor2 / delta * ((1.d0+ki)**2*kq - (1.d0+ki)*(ku*fv-kv*fu) + &
+		stokes(2,:) = -model%B1*model%mu / delta * ((1.d0+ki)**2*kq - (1.d0+ki)*(ku*fv-kv*fu) + &
 			fq*(kq*fq+ku*fu+kv*fv))
-		stokes(3,:) = factor2 / delta * ((1.d0+ki)**2*ku - (1.d0+ki)*(kv*fq-kq*fv) + &
+		stokes(3,:) = -model%B1*model%mu / delta * ((1.d0+ki)**2*ku - (1.d0+ki)*(kv*fq-kq*fv) + &
 			fu*(kq*fq+ku*fu+kv*fv))
-		stokes(4,:) = factor2 / delta * ((1.d0+ki)**2*kv - (1.d0+ki)*(kq*fu-ku*fq) + &
+		stokes(4,:) = -model%B1*model%mu / delta * ((1.d0+ki)**2*kv - (1.d0+ki)*(kq*fu-ku*fq) + &
 			fv*(kq*fq+ku*fu+kv*fv))
 			
 		Stokes_Syn%stokes = stokes
 			
-		deallocate(zeeman_voigt)
-		deallocate(zeeman_faraday)
-		deallocate(ki)
-		deallocate(kq)
-		deallocate(ku)
-		deallocate(kv)
-		deallocate(fq)
-		deallocate(fu)
-		deallocate(fv)
-				
-		deallocate(stokes)
-		deallocate(delta)
-
 	end subroutine synthesize
 		
 end module atomic_functions

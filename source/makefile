@@ -18,13 +18,9 @@
 # OPTIONS = -c -ffree-line-length-none -fPIC
  
 # ifort (comment these lines if you want to use another compiler)
-COMPILER = ifort
-PYCOMPILER = intel
-LIBS = -lifcore -lsvml
-OPTIONS = -c -fPIC -O3
+COMPILER = gfortran
+OPTIONS = -c -ffree-line-length-none -fPIC -O3
  
-FINAL_EXECUTABLE = milneFast
-F2PY_EXEC = f2py
 
 # 
 
@@ -32,14 +28,15 @@ all:
 	make pymilne
 		
 pymilne: vars.o maths.o atomic.o milne.o
-	$(F2PY_EXEC) $(LIBS) --fcompiler=$(PYCOMPILER) -c milne.pyf vars.o maths.o atomic.o milne.o
-	cp $(FINAL_EXECUTABLE).so ../
+# 	$(F2PY_EXEC) $(LIBS) --fcompiler=$(PYCOMPILER) -c milne.pyf vars.o maths.o atomic.o milne.o
+# 	cp $(FINAL_EXECUTABLE).so ../
 
 clean: 
 	find . -maxdepth 2 -name "*.o" -delete ; find . -maxdepth 1 -name "*.mod" -delete ;
 	find . -maxdepth 1 -name "*.f90~" -delete ; find . -maxdepth 2 -name "*.a" -delete ;
-	find . -maxdepth 1 -name "$(FINAL_EXECUTABLE).so" -delete ; find . -maxdepth 1 -name "*.pyf" -delete
-	find ../ -maxdepth 2 -name "$(FINAL_EXECUTABLE).so" -delete
+	find . -maxdepth 1 -name "pymilne.so" -delete ; find . -maxdepth 1 -name "*.pyf" -delete
+	find ../ -maxdepth 2 -name "pymilne.so" -delete
+	find . -maxdepth 2 -name "*.c" -delete ;
 	
 vars.o: vars.f90
 	$(COMPILER) $(OPTIONS)  vars.f90
@@ -52,4 +49,3 @@ atomic.o: atomic.f90 maths.o vars.o
 	
 milne.o: milne.f90
 	$(COMPILER) $(OPTIONS)  milne.f90
-	$(F2PY_EXEC) --overwrite-signature -m $(FINAL_EXECUTABLE) -h milne.pyf milne.f90

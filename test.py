@@ -9,12 +9,12 @@ JLow = 2.0
 gUp = 1.5
 gLow = 1.833
 lambdaStart = 6300.8
-lambdaStep = 0.01
-nLambda = 150
+lambdaStep = 0.03
+nLambda = 50
 
-lineInfo = [lambda0, JUp, JLow, gUp, gLow, lambdaStart, lambdaStep, nLambda]
+lineInfo = np.asarray([lambda0, JUp, JLow, gUp, gLow, lambdaStart, lambdaStep])
 
-s = milne(lineInfo)
+s = milne(nLambda, lineInfo)
 
 stokes = np.zeros((4,nLambda))
 
@@ -23,23 +23,31 @@ BTheta = 20.0
 BChi = 20.0
 VMac = 2.0
 damping = 0.0
-beta = 3.0
+B0 = 0.8
+B1 = 0.2
 mu = 1.0
-VDop = 0.15
+VDop = 0.085
 kl = 5.0
-model = [BField, BTheta, BChi, VMac, damping, beta, VDop, kl]
+model = np.asarray([BField, BTheta, BChi, VMac, damping, B0, B1, VDop, kl])
 
 start = dt.datetime.now()
-for i in range(1000):
-	wavelength, stokes = s.synth(model,mu)
+for i in range(10000):
+	stokes = s.synth(model,mu)
 end = dt.datetime.now()
-print "Computating 1000 models without derivatives took {0} s".format((end-start).microseconds*1e-6)
+print "Computing 1000 models without derivatives took {0} s".format((end-start).microseconds*1e-6)
 
+model = np.tile(model, (10000,1)).T
 start = dt.datetime.now()
-for i in range(1000):
-	wavelength, stokes, stokesDer = s.synthDerivatives(model,mu)
+stokes = s.synthGroup(model,mu)
 end = dt.datetime.now()
-print "Computating 1000 models with derivatives took {0} s".format((end-start).microseconds*1e-6)
+print "Computing 1000 models without derivatives took {0} s".format((end-start).microseconds*1e-6)
+
+
+#start = dt.datetime.now()
+#for i in range(1000):
+	#stokes, stokesDer = s.synthDerivatives(model,mu)
+#end = dt.datetime.now()
+#print "Computing 1000 models with derivatives took {0} s".format((end-start).microseconds*1e-6)
 
 #fig = pl.figure(num=0)
 
