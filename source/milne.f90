@@ -30,8 +30,10 @@ contains
 		Stokes_Syn%stokes = 0.d0
 		
 		do k = 1, line%nLambda
-			Stokes_Syn%lambda(k) = line%lambdaInit + line%lambdaStep * (k-1)			
+			Stokes_Syn%lambda(k) = line%lambdaInit + line%lambdaStep * (k-1)						
 		enddo
+		
+		waveOut = Stokes_Syn%lambda
 		
 		call init_maths
 		

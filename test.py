@@ -16,6 +16,7 @@ lineInfo = np.asarray([lambda0, JUp, JLow, gUp, gLow, lambdaStart, lambdaStep])
 
 s = milne(nLambda, lineInfo)
 
+
 stokes = np.zeros((4,nLambda))
 
 BField = 100.0
