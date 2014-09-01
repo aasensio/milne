@@ -9,7 +9,7 @@ class milne:
 	line = milne(lineInfo)
 	lineInfo = [lambda0, JUp, JLow, gUp, gLow, lambdaStart, lambdaStep, nLambda]
 	wavelength, stokes = line.synth(model)
-	model = [BField, theta, chi, vmac, damping, B0, B0+B1, doppler, doppler*sqrt(kl)]
+	model = [BField, theta, chi, vmac, damping, B0, B1, doppler, kl]
 	"""
 	
 	def __init__(self, nLambda, lineInfo):
@@ -22,9 +22,9 @@ class milne:
 		"""
 		Synthesize a spectral line using the Milne-Eddington model
 		"""
-		modelNew = self.varChange(model)
+#		modelNew = self.varChange(model)
 		
-		stokes = pm.synth(self.nLambda, modelNew, mu)
+		stokes = pm.synth(self.nLambda, model, mu)
 		
 		return stokes
 	
