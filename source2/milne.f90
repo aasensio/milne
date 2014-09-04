@@ -101,7 +101,7 @@ contains
 	integer(c_int), intent(in) :: nLambda, nModels
 	real(c_double) :: muIn
 	real(c_double), intent(in), dimension(nModels,9) :: modelIn
-	real(c_double), intent(out), dimension(4,nLambda,nModels) :: stokesOut
+	real(c_double), intent(out), dimension(nModels,4,nLambda) :: stokesOut
 	integer(c_int) :: i
 	
 		do i = 1, nModels
@@ -118,7 +118,7 @@ contains
 					
 			call synthesize(model,line,Stokes_Syn)
 					
-			StokesOut(:,:,i) = Stokes_Syn%stokes
+			StokesOut(i,:,:) = Stokes_Syn%stokes
 		enddo
  		
 	end subroutine c_milnesynthmany

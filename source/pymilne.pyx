@@ -27,7 +27,7 @@ def synth(int nLambda, ar[double,ndim=1] modelIn, double muIn):
 def synthGroup(int nLambda, int nModels, ar[double,ndim=2] modelIn, double muIn):
 	
 	cdef:
-		ar[double,ndim=3] stokesOut = empty((nModels,4,nLambda), order='F')
+		ar[double,ndim=3] stokesOut = empty((4,nLambda,nModels), order='F')
 		ar[double, ndim=2, mode="c"] model
 		
 	# Make sure that the 2D array is C_CONTIGUOUS

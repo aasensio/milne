@@ -1,5 +1,6 @@
 import pymilne as pm
 import numpy as np
+import ipdb
 
 class milne:
 	"""
@@ -14,7 +15,7 @@ class milne:
 	
 	def __init__(self, nLambda, lineInfo):
 		self.lineInfo = lineInfo
-		self.nLambda = nLambda
+		self.nLambda = nLambda		
 		self.wavelength = pm.init(nLambda, lineInfo)
 		
 	
@@ -49,6 +50,18 @@ class milne:
 				
 		return newModel, change
 	
+	def __perturbManyParameters(self, model, index, relativeChange):
+				
+		newModel = np.array(model)		
+		change = 1.0e-3 * np.ones(model.shape[1])
+		
+		ind = np.nonzero(model[index,:])
+		change[ind] = newModel[index,ind] * relativeChange
+		
+		newModel[index,:] += change
+				
+		return newModel, change
+	
 	def varChange(self, p):
 		model = p
 		model[6] = p[6] - p[5]
@@ -68,14 +81,34 @@ class milne:
 		Compute the derivative of the Stokes profiles with respect to all the variables
 		"""
 		
-		stokes = self.synth(model, mu)
+		stokes = pm.synth(self.nLambda, model, mu)
 		
 		stokesDeriv = np.zeros((9,4,self.nLambda))
-		
+				
 		for i in range(9):			
 			newModel, change = self.__perturbParameter(model, i, relativeChange)			
-			stokesNew = self.synth(newModel, mu)
+			stokesNew = pm.synth(self.nLambda, model, mu)
 		
 			stokesDeriv[i,:,:] = (stokesNew - stokes) / change			
 		
-		return stokes, stokesDeriv	
+		return stokes, stokesDeriv
+
+	def synthGroupDerivatives(self, model, mu=1.0, relativeChange=1e-3):
+		"""
+		Compute the derivative of the Stokes profiles with respect to all the variables
+		"""
+		nModels = model.shape[1]		
+		
+		stokes = pm.synthGroup(self.nLambda, nModels, model, mu)
+				
+		stokesDeriv = np.zeros((9,4,self.nLambda,nModels))				
+		
+		for i in range(9):
+			newModel, change = self.__perturbManyParameters(model, i, relativeChange)
+						
+			stokesNew = pm.synthGroup(self.nLambda, nModels, newModel, mu)
+		
+# Automatic broadcast "change"
+			stokesDeriv[i,:,:,:] = (stokesNew - stokes) / change
+		
+		return stokes, stokesDeriv
