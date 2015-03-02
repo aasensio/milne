@@ -1,4 +1,4 @@
-from milne import milne as milne
+import pymilne
 import numpy as np
 import matplotlib.pyplot as pl
 import time
@@ -14,7 +14,7 @@ nLambda = 50
 
 lineInfo = np.asarray([lambda0, JUp, JLow, gUp, gLow, lambdaStart, lambdaStep])
 
-s = milne(nLambda, lineInfo)
+s = pymilne.milne(nLambda, lineInfo)
 
 
 stokes = np.zeros((4,nLambda))

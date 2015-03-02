@@ -24,6 +24,12 @@ setup(name = 'pymilne',
       # Needed if building with NumPy.
       # This includes the NumPy headers when compiling.
       include_dirs = [get_include()],
-      ext_modules = ext_modules)
+      ext_modules = ext_modules,
+      version='0.1',
+      py_modules=['milne'],
+      description='Milne-Eddington synthesis package',
+      author='Andres Asensio Ramos',
+      author_email='aasensio@iac.es',      
+)
 
-system('cp pymilne.so ..')
+#system('cp pymilne.so ..')
