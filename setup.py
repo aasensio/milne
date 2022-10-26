@@ -7,7 +7,7 @@ from os import system
 
 # compile the fortran modules without linking
 fortran_mod_comp = 'make clean ; make'
-print fortran_mod_comp
+print(fortran_mod_comp)
 system(fortran_mod_comp)
 
 ext_modules = [Extension(# module name:
