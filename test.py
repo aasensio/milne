@@ -36,22 +36,22 @@ start = time.time()
 for i in range(nModels):
 	stokes = s.synth(modelSingle,mu)
 end = time.time()
-print "Computing {0} models without derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start))
+print("Computing {0} models without derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start)))
 
 model = np.tile(modelSingle, (nModels,1)).T
 start = time.time()
 stokes = s.synthGroup(model,mu)
 end = time.time()
-print "Computing {0} models without derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start))
+print("Computing {0} models without derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start)))
 
 start = time.time()
 for i in range(nModels):
 	stokes, dStokes = s.synthDerivatives(modelSingle,mu)
 end = time.time()
-print "Computing {0} models with derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start))
+print("Computing {0} models with derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start)))
 
 model = np.tile(modelSingle, (nModels,1)).T
 start = time.time()
 stokes = s.synthGroupDerivatives(model,mu)
 end = time.time()
-print "Computing {0} models with derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start))
+print("Computing {0} models with derivatives took {1} s -> {2} models/s".format(nModels,(end-start),nModels / (end-start)))
